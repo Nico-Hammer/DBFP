@@ -1,5 +1,5 @@
-CREATE DATABASE IF NOT EXISTS Bank;
 DROP DATABASE Bank;
+CREATE DATABASE IF NOT EXISTS Bank;
 USE Bank;
 
 CREATE TABLE customers (customer_id INT AUTO_INCREMENT PRIMARY KEY NOT NULL UNIQUE, first_name VARCHAR(50) NOT NULL, 
@@ -62,7 +62,6 @@ INSERT INTO transactions (transaction_id, account_id, transaction_date, transact
 (UUID(), 8, '2025-03-30', 10.00, 5, 8),
 (UUID(), 8, '2025-04-01', -300.00, 8, 5);
 
-
 #SIMPLE QUERY SECTION#
 
 SELECT *
@@ -116,10 +115,6 @@ NOT IN(
 	FROM accounts a
 	RIGHT JOIN transactions t ON t.account_id = a.account_id);
 
-SELECT * FROM accounts;
-SELECT * FROM customers;
-SELECT * FROM transactions;
-
 # Advanced query, creating a view to get the updated value after transactions#
 CREATE OR REPLACE VIEW customer_balance AS
 WITH total_transaction AS (
@@ -135,22 +130,3 @@ JOIN accounts a ON c.customer_id = a.customer_id
 LEFT JOIN total_transaction tt ON a.account_id = tt.account_id;
 
 SELECT * FROM customer_balance cb;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
