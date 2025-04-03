@@ -38,12 +38,11 @@ INSERT INTO accounts (customer_id, account_type, account_balance) VALUES
 (9, 'SAV', 500.00),
 (10, 'CHK', 750.30);
 
-DROP TABLE transactions;
 
 CREATE TABLE transactions (transaction_id VARCHAR(36) NOT NULL PRIMARY KEY UNIQUE ,
 account_id INT NOT NULL,
 transaction_date DATE NOT NULL,
-transaction_amount DECIMAL NOT NULL,
+transaction_amount DECIMAL (10,2) not nuLL,
 sender_id INT NOT NULL,
 receiver_id INT NOT NULL,
 FOREIGN KEY (account_id) REFERENCES accounts(account_id)
@@ -52,37 +51,77 @@ FOREIGN KEY (account_id) REFERENCES accounts(account_id)
 INSERT INTO transactions (transaction_id, account_id, transaction_date, transaction_amount, sender_id, receiver_id) VALUES
 (UUID(), 1, '2025-03-30', 200.00, 2, 1),
 (UUID(), 1, '2025-03-31', -500.00, 1, 2),
-
 (UUID(), 2, '2025-03-30', 500.00, 1, 2),
-(UUID(), 2, '2025-04-01', -200.00, 2, 1);
+(UUID(), 2, '2025-04-01', -200.00, 2, 1),
+(UUID(), 3, '2025-03-30', 172.33, 4, 3),
+(UUID(), 3, '2025-03-31', -875.86, 3, 4),
+(UUID(), 4, '2025-03-30', 875.86, 3, 4),
+(UUID(), 4, '2025-04-01', -172.33, 4, 3),
+(UUID(), 5, '2025-03-30', 300.00, 8, 5),
+(UUID(), 5, '2025-03-31', -10.00, 5, 8),
+(UUID(), 8, '2025-03-30', 10.00, 5, 8),
+(UUID(), 8, '2025-04-01', -300.00, 8, 5);
 
-(UUID(), 3, '2025-03-28', 50.00, 1, 3),
-(UUID(), 3, '2025-03-29', -150.00, 3, 6),
 
-(UUID(), 4, '2025-03-27', 700.00, 4, 7),
-(UUID(), 4, '2025-03-28', -500.00, 4, 2),
+#SIMPLE QUERY SECTION#
 
-(UUID(), 5, '2025-03-26', 1000.00, 5, 9),
-(UUID(), 5, '2025-03-27', -200.00, 5, 10),
+SELECT *
+FROM customers c;
 
-(UUID(), 6, '2025-03-25', 450.00, 6, 1),
-(UUID(), 6, '2025-03-26', -75.00, 6, 2),
+SELECT c.first_name, c.last_name
+FROM customers c;
 
-(UUID(), 7, '2025-03-24', 1200.00, 7, 3),
-(UUID(), 7, '2025-03-25', -300.00, 7, 4),
+SELECT c.last_name, c.phone_number
+FROM customers c;
 
-(UUID(), 8, '2025-03-23', 600.00, 8, 5),
-(UUID(), 8, '2025-03-24', -100.00, 8, 6),
+##
+SELECT * 
+FROM accounts a;
 
-(UUID(), 9, '2025-03-22', 250.00, 9, 7),
-(UUID(), 9, '2025-03-23', -50.00, 9, 8),
+SELECT a.customer_id, a.account_type, a.account_balance
+FROM accounts a 
+WHERE a.account_type = "SAV" AND a.account_balance > 800;
 
-(UUID(), 10, '2025-03-21', 900.00, 10, 9),
-(UUID(), 10, '2025-03-22', -125.00, 10, 1);
+SELECT AVG(a.account_balance) AS account_average
+FROM accounts a 
+WHERE a.account_type = "CHK";
 
-select *  from customers
+##
+SELECT * FROM transactions;
 
-CREATE OR REPLACE VIEW customer_balance as
+SELECT t.account_id, t.transaction_amount
+FROM transactions t
+WHERE t.transaction_date = "2025-03-31";
+
+SELECT t.account_id, t.transaction_amount, t.transaction_date
+FROM transactions t
+WHERE t.transaction_amount < -300;
+
+# JOINS #
+#AVG amount sent per customer#
+SELECT c.email, a.account_type, AVG(t.transaction_amount) AS avg_sent
+FROM customers c
+JOIN accounts a ON a.customer_id = c.customer_id
+JOIN transactions t ON t.account_id = a.account_id
+WHERE t.transaction_amount < 0
+GROUP BY a.account_id;
+
+#selecting users with no transactions#
+SELECT c.last_name , c.email, a.account_id
+FROM customers c
+JOIN accounts a ON a.customer_id = c.customer_id
+WHERE a.account_id 
+NOT IN(
+	SELECT a.account_id
+	FROM accounts a
+	RIGHT JOIN transactions t ON t.account_id = a.account_id);
+
+SELECT * FROM accounts;
+SELECT * FROM customers;
+SELECT * FROM transactions;
+
+# Advanced query, creating a view to get the updated value after transactions#
+CREATE OR REPLACE VIEW customer_balance AS
 WITH total_transaction AS (
     SELECT account_id, SUM(transaction_amount) AS total_trans
     FROM transactions
@@ -95,25 +134,7 @@ FROM customers c
 JOIN accounts a ON c.customer_id = a.customer_id
 LEFT JOIN total_transaction tt ON a.account_id = tt.account_id;
 
-SELECT * FROM customer_balance;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+SELECT * FROM customer_balance cb;
 
 
 
