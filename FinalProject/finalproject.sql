@@ -62,6 +62,8 @@ INSERT INTO transactions (transaction_id, account_id, transaction_date, transact
 (UUID(), 8, '2025-03-30', 10.00, 5, 8),
 (UUID(), 8, '2025-04-01', -300.00, 8, 5);
 
+
+CREATE INDEX idx_tranactionDate on transactions(transaction_date);
 #SIMPLE QUERY SECTION#
 
 SELECT *
